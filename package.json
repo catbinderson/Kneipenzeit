@@ -1,7 +1,10 @@
 {
   "name": "kneipenzeit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -21,7 +24,6 @@
     "eslint-config-next": "16.2.6",
     "typescript": "5.9.3"
   },
-  "engines": {
-    "node": ">=22.13.0"
-  }
+  "type": "module",
+  "displayName": "Kneipenzeit"
 }
