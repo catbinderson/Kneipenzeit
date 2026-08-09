@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   images: { unoptimized: true },
   basePath: onGitHubPages ? "/Kneipenzeit" : "",
-  assetPrefix: onGitHubPages ? "/Kneipenzeit/" : "",
+  assetPrefix: onGitHubPages ? "/Kneipenzeit" : "",
 };
 
 export default nextConfig;
