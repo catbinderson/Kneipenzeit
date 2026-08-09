@@ -51,7 +51,7 @@ export default function Home() {
     }
     if(v) setVisits(JSON.parse(v)); setReady(true);
     if ("serviceWorker" in navigator && window.location.hostname.endsWith("github.io")) {
-      navigator.serviceWorker.register("/Kneipenzeit/sw.js?v=1.0.2").catch(() => undefined);
+      navigator.serviceWorker.register("/Kneipenzeit/sw.js?v=1.0.3").catch(() => undefined);
     }
     const timer=setInterval(()=>setNow(Date.now()),1000); return()=>clearInterval(timer);
   },[]);
@@ -89,8 +89,19 @@ export default function Home() {
   function endVisit(){ setVisits(visits.map(v=>v.end||v!==active?v:{...v,end:new Date().toISOString()})); setMessage("Besuch beendet und gespeichert"); }
   function removeVisit(id:number){setVisits(visits.filter(v=>v.id!==id));}
 
+  const currentDate = new Date(now);
+
   return <main>
-    <header className="topbar"><div className="brand"><span className="logo">K</span><div><strong>Kneipenzeit</strong><small>Deine Zeit. Deine Kneipe.</small></div></div><span className={`gps ${tracking?"on":""}`}>● {tracking?"GPS aktiv":"GPS aus"}</span></header>
+    <header className="topbar">
+      <div className="brand"><span className="logo">K</span><div><strong>Kneipenzeit</strong><small>Deine Zeit. Deine Kneipe.</small><span className="developer">Developer: Andreas Binder · Version 1.0.3</span></div></div>
+      <div className="headerRight">
+        <time className="headerClock" suppressHydrationWarning>
+          <strong>{currentDate.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false})} Uhr</strong>
+          <span>{currentDate.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"})}</span>
+        </time>
+        <span className={`gps ${tracking?"on":""}`}>● {tracking?"GPS aktiv":"GPS aus"}</span>
+      </div>
+    </header>
     <div className="shell">
       <nav className="tabs">
         <button className={tab==="overview"?"active":""} onClick={()=>setTab("overview")}>Übersicht</button>
@@ -114,7 +125,7 @@ export default function Home() {
 
       {tab==="settings"&&<section className="settingsGrid"><div className="panel"><p className="eyebrow">STANDORT</p><h1>Deine Kneipe</h1><label>Name<input value={pub.name} readOnly/></label><label>Adresse<input value={pub.address} readOnly/></label><div className="coords"><label>Breitengrad<input type="number" value={pub.lat??""} readOnly/></label><label>Längengrad<input type="number" value={pub.lng??""} readOnly/></label></div><button className="primary full" onClick={useCurrentLocation}>Standort vor Ort genauer festlegen</button></div><div className="panel"><p className="eyebrow">AUTOMATIK</p><h1>GPS-Erkennung</h1><label>Erkennungsradius <b>{pub.radius} m</b><input type="range" min="25" max="200" step="5" value={pub.radius} onChange={e=>setPub({...pub,radius:+e.target.value})}/></label><label>Mindestaufenthalt <b>{pub.delay} Min.</b><input type="range" min="0" max="20" value={pub.delay} onChange={e=>setPub({...pub,delay:+e.target.value})}/></label><div className="notice">Kurzes Vorbeifahren wird erst nach dem Mindestaufenthalt als Besuch gewertet. Auf dem iPhone muss die App geöffnet sein, damit eine Web-App den Standort zuverlässig aktualisieren kann.</div><button className="secondary full" onClick={toggleTracking}>{tracking?"GPS-Erkennung pausieren":"GPS-Erkennung starten"}</button></div></section>}
     </div>
-    <footer>Alle Daten werden nur auf diesem Gerät gespeichert. · Kneipenzeit v1.0.2</footer>
+    <footer>Alle Daten werden nur auf diesem Gerät gespeichert. · Kneipenzeit v1.0.3</footer>
   </main>;
 }
 
