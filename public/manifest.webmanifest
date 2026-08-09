@@ -1,0 +1,19 @@
+{
+  "name": "Kneipenzeit",
+  "short_name": "Kneipenzeit",
+  "description": "GPS-basierte Anwesenheitsstatistik für die Gaststätte Heuchelberg",
+  "start_url": "/Kneipenzeit/",
+  "scope": "/Kneipenzeit/",
+  "display": "standalone",
+  "background_color": "#f5f1e8",
+  "theme_color": "#19150f",
+  "lang": "de-DE",
+  "icons": [
+    {
+      "src": "/Kneipenzeit/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
