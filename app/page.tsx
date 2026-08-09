@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Visit = { id: number; start: string; end: string | null };
-type Pub = { name: string; lat: number | null; lng: number | null; radius: number; delay: number };
+type Pub = { name: string; address: string; lat: number | null; lng: number | null; radius: number; delay: number };
 
-const initialPub: Pub = { name: "Meine Stammkneipe", lat: null, lng: null, radius: 60, delay: 5 };
+const initialPub: Pub = { name: "Gaststätte Heuchelberg", address: "Kelterstraße 6, 74211 Leingarten", lat: 49.1427734, lng: 9.1220517, radius: 60, delay: 5 };
 const sampleVisits: Visit[] = [
   { id: 1, start: "2026-08-08T18:42:00", end: "2026-08-08T22:18:00" },
   { id: 2, start: "2026-08-02T19:11:00", end: "2026-08-02T23:04:00" },
@@ -45,7 +45,11 @@ export default function Home() {
 
   useEffect(() => {
     const p=localStorage.getItem("kneipenzeit-pub"), v=localStorage.getItem("kneipenzeit-visits");
-    if(p) setPub(JSON.parse(p)); if(v) setVisits(JSON.parse(v)); setReady(true);
+    if(p) {
+      const saved = JSON.parse(p) as Partial<Pub>;
+      setPub(saved.name === "Meine Stammkneipe" ? initialPub : { ...initialPub, ...saved });
+    }
+    if(v) setVisits(JSON.parse(v)); setReady(true);
     const timer=setInterval(()=>setNow(Date.now()),1000); return()=>clearInterval(timer);
   },[]);
   useEffect(()=>{ if(ready){ localStorage.setItem("kneipenzeit-pub",JSON.stringify(pub)); localStorage.setItem("kneipenzeit-visits",JSON.stringify(visits)); }},[pub,visits,ready]);
@@ -93,7 +97,7 @@ export default function Home() {
 
       {tab==="overview"&&<>
         <section className={`hero ${active?"inside":""}`}>
-          <div><p className="eyebrow">{active?"JETZT EINGECHECKT":"DEINE STAMMKNEIPE"}</p><h1>{pub.name}</h1><p className="status">{message}</p></div>
+          <div><p className="eyebrow">{active?"JETZT EINGECHECKT":"DEINE STAMMKNEIPE"}</p><h1>{pub.name}</h1><p className="pubAddress">{pub.address}</p><p className="status">{message}</p></div>
           <div className="heroRight"><div className="clock">{active?fmt(duration(active,now)):"0 Std. 00 Min."}</div><small>{active?`Seit ${new Date(active.start).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})} Uhr`:distanceAway!==null?`${Math.round(distanceAway)} m entfernt`:"Heute"}</small></div>
           <div className="actions"><button className="primary" onClick={active?endVisit:startVisit}>{active?"Besuch beenden":"Manuell einchecken"}</button><button className="secondary" onClick={toggleTracking}>{tracking?"GPS pausieren":"GPS-Erkennung starten"}</button></div>
         </section>
@@ -105,9 +109,9 @@ export default function Home() {
 
       {tab==="visits"&&<section className="panel"><div className="sectionTitle"><div><p className="eyebrow">CHRONIK</p><h1>Alle Besuche</h1></div><button className="primary compact" onClick={startVisit}>+ Besuch starten</button></div><VisitList visits={visits} now={now} remove={removeVisit}/></section>}
 
-      {tab==="settings"&&<section className="settingsGrid"><div className="panel"><p className="eyebrow">STANDORT</p><h1>Deine Kneipe</h1><label>Name<input value={pub.name} onChange={e=>setPub({...pub,name:e.target.value})}/></label><div className="coords"><label>Breitengrad<input type="number" value={pub.lat??""} onChange={e=>setPub({...pub,lat:+e.target.value})}/></label><label>Längengrad<input type="number" value={pub.lng??""} onChange={e=>setPub({...pub,lng:+e.target.value})}/></label></div><button className="primary full" onClick={useCurrentLocation}>Aktuellen Standort als Kneipe speichern</button></div><div className="panel"><p className="eyebrow">AUTOMATIK</p><h1>GPS-Erkennung</h1><label>Erkennungsradius <b>{pub.radius} m</b><input type="range" min="25" max="200" step="5" value={pub.radius} onChange={e=>setPub({...pub,radius:+e.target.value})}/></label><label>Mindestaufenthalt <b>{pub.delay} Min.</b><input type="range" min="0" max="20" value={pub.delay} onChange={e=>setPub({...pub,delay:+e.target.value})}/></label><div className="notice">Kurzes Vorbeifahren wird erst nach dem Mindestaufenthalt als Besuch gewertet. Auf dem iPhone muss die App geöffnet sein, damit eine Web-App den Standort zuverlässig aktualisieren kann.</div><button className="secondary full" onClick={toggleTracking}>{tracking?"GPS-Erkennung pausieren":"GPS-Erkennung starten"}</button></div></section>}
+      {tab==="settings"&&<section className="settingsGrid"><div className="panel"><p className="eyebrow">STANDORT</p><h1>Deine Kneipe</h1><label>Name<input value={pub.name} readOnly/></label><label>Adresse<input value={pub.address} readOnly/></label><div className="coords"><label>Breitengrad<input type="number" value={pub.lat??""} readOnly/></label><label>Längengrad<input type="number" value={pub.lng??""} readOnly/></label></div><button className="primary full" onClick={useCurrentLocation}>Standort vor Ort genauer festlegen</button></div><div className="panel"><p className="eyebrow">AUTOMATIK</p><h1>GPS-Erkennung</h1><label>Erkennungsradius <b>{pub.radius} m</b><input type="range" min="25" max="200" step="5" value={pub.radius} onChange={e=>setPub({...pub,radius:+e.target.value})}/></label><label>Mindestaufenthalt <b>{pub.delay} Min.</b><input type="range" min="0" max="20" value={pub.delay} onChange={e=>setPub({...pub,delay:+e.target.value})}/></label><div className="notice">Kurzes Vorbeifahren wird erst nach dem Mindestaufenthalt als Besuch gewertet. Auf dem iPhone muss die App geöffnet sein, damit eine Web-App den Standort zuverlässig aktualisieren kann.</div><button className="secondary full" onClick={toggleTracking}>{tracking?"GPS-Erkennung pausieren":"GPS-Erkennung starten"}</button></div></section>}
     </div>
-    <footer>Alle Daten werden nur auf diesem Gerät gespeichert. · Kneipenzeit v1.0.0</footer>
+    <footer>Alle Daten werden nur auf diesem Gerät gespeichert. · Kneipenzeit v1.0.1</footer>
   </main>;
 }
 
