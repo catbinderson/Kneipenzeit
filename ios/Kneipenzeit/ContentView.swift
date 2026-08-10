@@ -36,7 +36,7 @@ private struct AppHeader: View {
                         .fill(LinearGradient(colors: [.pubGold, .pubAmber], startPoint: .topLeading, endPoint: .bottomTrailing))
                     Text("K")
                         .font(.system(size: 26, weight: .black, design: .serif))
-                        .foregroundStyle(.pubDark)
+                        .foregroundStyle(Color.pubDark)
                 }
                 .frame(width: 43, height: 43)
 
@@ -45,7 +45,7 @@ private struct AppHeader: View {
                         .font(.headline.weight(.bold))
                     Text("Designed & Developed by Andreas Binder")
                         .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(.pubGold)
+                        .foregroundStyle(Color.pubGold)
                     Text("Version \(version)")
                         .font(.system(size: 9))
                         .foregroundStyle(.white.opacity(0.65))
@@ -108,7 +108,7 @@ private struct OverviewView: View {
                 Spacer()
                 Image(systemName: store.activeVisit == nil ? "mappin.and.ellipse" : "mug.fill")
                     .font(.title2)
-                    .foregroundStyle(.pubGold)
+                    .foregroundStyle(Color.pubGold)
             }
 
             if let active = store.activeVisit {
@@ -228,7 +228,7 @@ private struct VisitRow: View {
                 Text(visit.start.formatted(.dateTime.month(.abbreviated)))
                     .font(.caption2.bold())
                     .textCase(.uppercase)
-                    .foregroundStyle(.pubAmber)
+                    .foregroundStyle(Color.pubAmber)
             }
             .frame(width: 48, height: 50)
             .background(Color.pubAmber.opacity(0.12), in: RoundedRectangle(cornerRadius: 11))
@@ -278,7 +278,7 @@ private struct StatisticsView: View {
                         Spacer()
                         Text(DurationText.format(summary.duration))
                             .font(.subheadline.bold())
-                            .foregroundStyle(.pubAmber)
+                            .foregroundStyle(Color.pubAmber)
                     }
                     .padding(.vertical, 6)
                     .listRowBackground(Color.clear)
@@ -351,7 +351,7 @@ private struct GPSSettingsView: View {
         VStack(alignment: .leading, spacing: 14) {
             Label(title, systemImage: icon)
                 .font(.title3.bold())
-                .foregroundStyle(.pubAmber)
+                .foregroundStyle(Color.pubAmber)
             Divider()
             content()
         }
