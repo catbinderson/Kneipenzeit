@@ -119,7 +119,7 @@ export default function Home() {
 
   return <main>
     <header className="topbar">
-      <div className="brand"><span className="logo">K</span><div><strong>Kneipenzeit</strong><small>Deine Zeit. Deine Kneipe.</small><span className="developer">Developer: Andreas Binder · Version 1.2.0</span></div></div>
+      <div className="brand"><span className="logo">K</span><div><strong>Kneipenzeit</strong><small>Deine Zeit. Deine Kneipe.</small><span className="developer">designed & developed by Andreas Binder · v1.2.0</span></div></div>
       <div className="headerRight">
         <time className="headerClock" suppressHydrationWarning>
           <strong>{currentDate.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false})} Uhr</strong>
