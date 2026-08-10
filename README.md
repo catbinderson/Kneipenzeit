@@ -25,4 +25,16 @@ Danach die App unter http://localhost:3000 öffnen.
 
 Standort- und Besuchsdaten werden ausschließlich lokal im Browser gespeichert. Eine Web-App kann auf dem iPhone bei gesperrtem Bildschirm nicht durchgehend auf den Standort zugreifen.
 
-Version 1.0.0 · Entwickelt und gestaltet von Andreas Binder
+## Native iPhone-App
+
+Die native SwiftUI-Version liegt im Ordner `ios/`. Sie ergänzt die Web-App um iOS-Bereichsüberwachung im Hintergrund, lokale Benachrichtigungen und ausführliche Tages-, Wochen- und Monatsstatistiken.
+
+### In Xcode öffnen
+
+1. Repository klonen.
+2. `ios/Kneipenzeit.xcodeproj` mit Xcode 27 oder neuer öffnen.
+3. Beim Target **Kneipenzeit** unter **Signing & Capabilities** das eigene Personal Team auswählen.
+4. Ein verbundenes iPhone als Ziel wählen und die App mit **Run** starten.
+5. In der App Standortzugriff zuerst **Beim Verwenden** und danach **Immer** erlauben.
+
+Web-Version 1.2.1 · Native iOS-Version 2.0.0 · Designed & Developed by Andreas Binder
