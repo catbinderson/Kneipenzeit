@@ -12,6 +12,7 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
         didSet {
             UserDefaults.standard.set(radius, forKey: radiusKey)
             if isMonitoring { restartRegionMonitoring() }
+            if let proximityText { statusText = proximityText }
         }
     }
 
@@ -40,6 +41,15 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
         case .notDetermined: return "Noch nicht gefragt"
         @unknown default: return "Unbekannt"
         }
+    }
+
+    var proximityText: String? {
+        guard let distance = distanceToPub else { return nil }
+        let roundedDistance = Int(distance.rounded())
+        let formattedDistance = Self.distanceFormatter.string(from: NSNumber(value: roundedDistance)) ?? "\(roundedDistance)"
+        return distance <= radius
+            ? "In der Kneipe · \(formattedDistance) m entfernt"
+            : "\(formattedDistance) m von der Kneipe entfernt"
     }
 
     func requestPermissionAndStart() {
@@ -128,6 +138,7 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
         guard let location = locations.last else { return }
         let pub = CLLocation(latitude: PubLocation.coordinate.latitude, longitude: PubLocation.coordinate.longitude)
         distanceToPub = location.distance(from: pub)
+        if let proximityText { statusText = proximityText }
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -159,9 +170,17 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
         case .outside:
             if store.endActiveVisit(automaticOnly: true) { statusText = "Außerhalb · Besuch beendet" }
         case .unknown:
-            statusText = "Position zur Kneipe wird ermittelt"
+            if distanceToPub == nil { statusText = "Position zur Kneipe wird ermittelt" }
         }
     }
+
+    private static let distanceFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: "de_DE")
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        return formatter
+    }()
 
     private func requestNotifications() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }

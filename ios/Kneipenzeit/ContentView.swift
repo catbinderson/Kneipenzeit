@@ -25,7 +25,7 @@ struct ContentView: View {
 
 private struct AppHeader: View {
     private var version: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "2.0.0"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "2.0.1"
     }
 
     var body: some View {
@@ -118,7 +118,7 @@ private struct OverviewView: View {
                         .monospacedDigit()
                 }
             } else {
-                Text(locationService.statusText)
+                Text(locationService.proximityText ?? locationService.statusText)
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.78))
             }

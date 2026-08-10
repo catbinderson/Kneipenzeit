@@ -37,4 +37,4 @@ Die native SwiftUI-Version liegt im Ordner `ios/`. Sie ergänzt die Web-App um i
 4. Ein verbundenes iPhone als Ziel wählen und die App mit **Run** starten.
 5. In der App Standortzugriff zuerst **Beim Verwenden** und danach **Immer** erlauben.
 
-Web-Version 1.2.1 · Native iOS-Version 2.0.0 · Designed & Developed by Andreas Binder
+Web-Version 1.2.1 · Native iOS-Version 2.0.1 · Designed & Developed by Andreas Binder
