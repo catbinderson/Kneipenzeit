@@ -1,4 +1,4 @@
-const CACHE_NAME = "kneipenzeit-v1.0.3";
+const CACHE_NAME = "kneipenzeit-v1.1.0";
 const APP_ROOT = "/Kneipenzeit/";
 
 self.addEventListener("install", (event) => {
