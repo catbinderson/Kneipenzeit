@@ -213,7 +213,7 @@ footer { padding: 0 20px calc(28px + env(safe-area-inset-bottom)); color: rgba(1
 @media (max-width:760px) {
   .topbar { min-height: 70px; padding: 10px 15px; }
   .logo { width: 42px; height: 42px; flex-basis: 42px; border-radius: 14px; }
-  .developer { display: none; }
+  .developer { display: block; margin-top: 3px; color: var(--amber-light); font-size: 9px; font-weight: 700; white-space: nowrap; }
   .headerClock span { display: none; }
   .gps { display: none; }
   .shell { width: min(calc(100% - 24px),1180px); padding-top: 17px; }
