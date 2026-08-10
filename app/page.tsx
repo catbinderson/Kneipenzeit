@@ -40,6 +40,7 @@ export default function Home() {
   const [message, setMessage] = useState("GPS-Erkennung ist noch nicht aktiv");
   const [tab, setTab] = useState<"overview"|"visits"|"settings">("overview");
   const [now, setNow] = useState(Date.now());
+  const [copiedLink, setCopiedLink] = useState<"checkin"|"checkout"|null>(null);
   const watch = useRef<number | null>(null);
   const insideSince = useRef<number | null>(null);
 
@@ -49,9 +50,29 @@ export default function Home() {
       const saved = JSON.parse(p) as Partial<Pub>;
       setPub(saved.name === "Meine Stammkneipe" ? initialPub : { ...initialPub, ...saved });
     }
-    if(v) setVisits(JSON.parse(v)); setReady(true);
+    let nextVisits: Visit[] = v ? JSON.parse(v) : sampleVisits;
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get("action");
+    if (action === "checkin" && !nextVisits.some(visit => !visit.end)) {
+      nextVisits = [{ id: Date.now(), start: new Date().toISOString(), end: null }, ...nextVisits];
+      setMessage("Automatisch eingecheckt");
+    } else if (action === "checkout") {
+      const openVisit = nextVisits.find(visit => !visit.end);
+      if (openVisit) {
+        nextVisits = nextVisits.map(visit => visit.id === openVisit.id ? { ...visit, end: new Date().toISOString() } : visit);
+        setMessage("Automatisch ausgecheckt und Besuch gespeichert");
+      }
+    }
+    setVisits(nextVisits);
+    if (action === "checkin" || action === "checkout") {
+      localStorage.setItem("kneipenzeit-visits", JSON.stringify(nextVisits));
+      params.delete("action");
+      const query = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (query ? `?${query}` : "") + window.location.hash);
+    }
+    setReady(true);
     if ("serviceWorker" in navigator && window.location.hostname.endsWith("github.io")) {
-      navigator.serviceWorker.register("/Kneipenzeit/sw.js?v=1.0.3").catch(() => undefined);
+      navigator.serviceWorker.register("/Kneipenzeit/sw.js?v=1.1.0").catch(() => undefined);
     }
     const timer=setInterval(()=>setNow(Date.now()),1000); return()=>clearInterval(timer);
   },[]);
@@ -88,12 +109,17 @@ export default function Home() {
   function startVisit(){ if(active) return; setVisits([{id:Date.now(),start:new Date().toISOString(),end:null},...visits]); setMessage("Besuch läuft"); }
   function endVisit(){ setVisits(visits.map(v=>v.end||v!==active?v:{...v,end:new Date().toISOString()})); setMessage("Besuch beendet und gespeichert"); }
   function removeVisit(id:number){setVisits(visits.filter(v=>v.id!==id));}
+  async function copyAutomationLink(kind:"checkin"|"checkout"){
+    const url=`https://catbinderson.github.io/Kneipenzeit/?action=${kind}`;
+    try{await navigator.clipboard.writeText(url);setCopiedLink(kind);setTimeout(()=>setCopiedLink(null),1800)}
+    catch{window.prompt("Link kopieren:",url)}
+  }
 
   const currentDate = new Date(now);
 
   return <main>
     <header className="topbar">
-      <div className="brand"><span className="logo">K</span><div><strong>Kneipenzeit</strong><small>Deine Zeit. Deine Kneipe.</small><span className="developer">Developer: Andreas Binder · Version 1.0.3</span></div></div>
+      <div className="brand"><span className="logo">K</span><div><strong>Kneipenzeit</strong><small>Deine Zeit. Deine Kneipe.</small><span className="developer">Developer: Andreas Binder · Version 1.1.0</span></div></div>
       <div className="headerRight">
         <time className="headerClock" suppressHydrationWarning>
           <strong>{currentDate.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false})} Uhr</strong>
@@ -123,9 +149,9 @@ export default function Home() {
 
       {tab==="visits"&&<section className="panel"><div className="sectionTitle"><div><p className="eyebrow">CHRONIK</p><h1>Alle Besuche</h1></div><button className="primary compact" onClick={startVisit}>+ Besuch starten</button></div><VisitList visits={visits} now={now} remove={removeVisit}/></section>}
 
-      {tab==="settings"&&<section className="settingsGrid"><div className="panel"><p className="eyebrow">STANDORT</p><h1>Deine Kneipe</h1><label>Name<input value={pub.name} readOnly/></label><label>Adresse<input value={pub.address} readOnly/></label><div className="coords"><label>Breitengrad<input type="number" value={pub.lat??""} readOnly/></label><label>Längengrad<input type="number" value={pub.lng??""} readOnly/></label></div><button className="primary full" onClick={useCurrentLocation}>Standort vor Ort genauer festlegen</button></div><div className="panel"><p className="eyebrow">AUTOMATIK</p><h1>GPS-Erkennung</h1><label>Erkennungsradius <b>{pub.radius} m</b><input type="range" min="25" max="200" step="5" value={pub.radius} onChange={e=>setPub({...pub,radius:+e.target.value})}/></label><label>Mindestaufenthalt <b>{pub.delay} Min.</b><input type="range" min="0" max="20" value={pub.delay} onChange={e=>setPub({...pub,delay:+e.target.value})}/></label><div className="notice">Kurzes Vorbeifahren wird erst nach dem Mindestaufenthalt als Besuch gewertet. Auf dem iPhone muss die App geöffnet sein, damit eine Web-App den Standort zuverlässig aktualisieren kann.</div><button className="secondary full" onClick={toggleTracking}>{tracking?"GPS-Erkennung pausieren":"GPS-Erkennung starten"}</button></div></section>}
+      {tab==="settings"&&<section className="settingsGrid"><div className="panel"><p className="eyebrow">STANDORT</p><h1>Deine Kneipe</h1><label>Name<input value={pub.name} readOnly/></label><label>Adresse<input value={pub.address} readOnly/></label><div className="coords"><label>Breitengrad<input type="number" value={pub.lat??""} readOnly/></label><label>Längengrad<input type="number" value={pub.lng??""} readOnly/></label></div><button className="primary full" onClick={useCurrentLocation}>Standort vor Ort genauer festlegen</button></div><div className="panel"><p className="eyebrow">AUTOMATIK</p><h1>GPS-Erkennung</h1><label>Erkennungsradius <b>{pub.radius} m</b><input type="range" min="25" max="200" step="5" value={pub.radius} onChange={e=>setPub({...pub,radius:+e.target.value})}/></label><label>Mindestaufenthalt <b>{pub.delay} Min.</b><input type="range" min="0" max="20" value={pub.delay} onChange={e=>setPub({...pub,delay:+e.target.value})}/></label><div className="notice">Kurzes Vorbeifahren wird erst nach dem Mindestaufenthalt als Besuch gewertet. Auf dem iPhone und Android muss die Web-App für die interne GPS-Prüfung geöffnet sein.</div><button className="secondary full" onClick={toggleTracking}>{tracking?"GPS-Erkennung pausieren":"GPS-Erkennung starten"}</button></div><div className="panel automationPanel"><p className="eyebrow">IPHONE & ANDROID</p><h1>Standort-Automationen</h1><p className="automationIntro">Verwende diese Links in einer Ankunfts- und Verlassen-Automation deines Smartphones. Beim Öffnen trägt Kneipenzeit den Besuch automatisch ein oder beendet ihn.</p><div className="automationRow"><div><strong>Ankunft</strong><code>…/?action=checkin</code></div><button className="secondary" onClick={()=>copyAutomationLink("checkin")}>{copiedLink==="checkin"?"Kopiert ✓":"Link kopieren"}</button></div><div className="automationRow"><div><strong>Verlassen</strong><code>…/?action=checkout</code></div><button className="secondary" onClick={()=>copyAutomationLink("checkout")}>{copiedLink==="checkout"?"Kopiert ✓":"Link kopieren"}</button></div><div className="notice">Die Geräte-Automation öffnet Kneipenzeit kurz. Dadurch funktioniert dieselbe App auf iPhone und Android, ohne kostenpflichtiges Entwicklerkonto.</div></div></section>}
     </div>
-    <footer>Alle Daten werden nur auf diesem Gerät gespeichert. · Kneipenzeit v1.0.3</footer>
+    <footer>Alle Daten werden nur auf diesem Gerät gespeichert. · Kneipenzeit v1.1.0</footer>
   </main>;
 }
 
