@@ -25,7 +25,7 @@ struct ContentView: View {
 
 private struct AppHeader: View {
     private var version: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "2.0.1"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "2.0.2"
     }
 
     var body: some View {
@@ -319,7 +319,7 @@ private struct GPSSettingsView: View {
                                 Spacer()
                                 Text("\(Int(locationService.radius)) m").bold()
                             }
-                            Slider(value: $locationService.radius, in: 50...200, step: 10)
+                            Slider(value: $locationService.radius, in: 10...50, step: 5)
                                 .tint(.pubAmber)
                         }
                         Button("GPS und Hintergrund-Erkennung aktivieren") {

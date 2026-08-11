@@ -23,7 +23,7 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
     init(store: VisitStore) {
         self.store = store
         let savedRadius = UserDefaults.standard.double(forKey: radiusKey)
-        radius = savedRadius > 0 ? savedRadius : 60
+        radius = savedRadius > 0 ? min(max(savedRadius, 10), 50) : 50
         authorizationStatus = manager.authorizationStatus
         super.init()
         manager.delegate = self
